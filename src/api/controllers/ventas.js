@@ -33,12 +33,12 @@ const getVentasId = async (req, res, next) => {
 const updateVentas = async (req, res, next) => {
   try {
     const { id } = req.params
-    const newVentas = new Venta(req.body)
+    const newVentas = new Ventas(req.body)
     newVentas._id = id
-    const up = await Venta.findByIdAndUpdate(id, newVentas, { new: true })
+    const up = await Ventas.findByIdAndUpdate(id, newVentas, { new: true })
     return res.status(200).json(up)
   } catch (error) {
-    return res.status(400).json('ha fallado la busqueda')
+    return res.status(400).json('ha fallado la actualización')
   }
 }
 
@@ -48,7 +48,7 @@ const deleteVentas = async (req, res, next) => {
     await Ventas.findByIdAndDelete(id)
     return res.status(200).json('elemento eliminado')
   } catch (error) {
-    return res.status(400).json('ha fallado la busqueda')
+    return res.status(400).json('ha fallado la eliminación del elemento')
   }
 }
 

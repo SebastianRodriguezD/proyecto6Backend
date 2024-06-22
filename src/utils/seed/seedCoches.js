@@ -10,13 +10,13 @@ mongoose
     const allCoches = await Coches.find()
     if (allCoches.length) {
       await Coches.collection.drop()
-      console.log('peliculas eliminadas')
+      console.log('Coches eliminados')
     }
   })
   .catch((err) => console.log(`Error deleting data: ${err}`))
   .then(async () => {
     await Coches.insertMany(coches)
-    console.log('peliculas introducidas')
+    console.log('Coches Introducidos')
   })
   .catch((err) => console.log(`Error creating data: ${err}`))
   .finally(() => mongoose.disconnect(console.log('desconectado de la bbdd')))

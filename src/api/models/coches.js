@@ -10,5 +10,8 @@ const cocheSchema = new mongoose.Schema(
     collection: 'coches'
   }
 )
+
+cocheSchema.index({ imgUrl: 1, year: 1, title: 1 }, { unique: true }) // Ejemplo de índice único, para evitar duplicado.
+
 const Coches = mongoose.model('coches', cocheSchema, 'coches')
 module.exports = Coches
