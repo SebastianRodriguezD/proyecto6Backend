@@ -3,7 +3,23 @@ const Ventas = require('../models/ventas')
 
 const postVentas = async (req, res, next) => {
   try {
-    const newVenta = new Ventas(req.body)
+    // Eliminar IDs duplicados
+    const uniqueCocheIds = [...new Set(coche)]
+
+    // Verificar si alguno de los coches ya está asociado con otra venta
+    const existingVenta = await Ventas.findOne({
+      coche: { $in: uniqueCocheIds }
+    })
+    if (existingVenta) {
+      return res
+        .status(400)
+        .json('Uno o más coches ya están asociados a otra venta')
+    }
+    const newVenta = new Ventas({
+      vendido,
+      year,
+      coche: uniqueCocheIds
+    })
     const ventasSaved = await newVenta.save()
     return res.status(201).json(ventasSaved)
   } catch (error) {
@@ -33,12 +49,47 @@ const getVentasId = async (req, res, next) => {
 const updateVentas = async (req, res, next) => {
   try {
     const { id } = req.params
-    const newVentas = new Ventas(req.body)
-    newVentas._id = id
-    const up = await Ventas.findByIdAndUpdate(id, newVentas, { new: true })
-    return res.status(200).json(up)
+
+    //? Obtener la venta actual
+    const currentVenta = await Ventas.findById(id)
+    if (!currentVenta) {
+      return res.status(404).json('Venta no encontrada')
+    }
+
+    //? Verificar si se proporcionan coches y procesarlos
+    if (req.body.coche) {
+      //? Eliminar IDs duplicados
+      const uniqueCocheIds = [...new Set(req.body.coche)]
+
+      //? Verificar si alguno de los coches ya está asociado con otra venta diferente
+      const existingVenta = await Ventas.findOne({
+        _id: { $ne: id },
+        coche: { $in: uniqueCocheIds }
+      })
+      if (existingVenta) {
+        return res
+          .status(400)
+          .json('Uno o más coches ya están asociados a otra venta')
+      }
+
+      //? Actualizar coches en la venta
+      currentVenta.coche = uniqueCocheIds
+    }
+
+    //? Actualizar solo los campos proporcionados
+    if (req.body.vendido !== undefined) {
+      currentVenta.vendido = req.body.vendido
+    }
+    if (req.body.year !== undefined) {
+      currentVenta.year = req.body.year
+    }
+
+    //? Guardar la venta actualizada en la base de datos
+    const updatedVenta = await currentVenta.save()
+
+    return res.status(200).json(updatedVenta)
   } catch (error) {
-    return res.status(400).json('ha fallado la actualización')
+    return res.status(400).json('Ha fallado la actualización')
   }
 }
 
